@@ -64,14 +64,8 @@ export function HeroForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!phoneOk) return;
-    const msg = [
-      "*Solicitação de conversa ALVEO*",
-      `Nome: ${form.nome}`,
-      `Clínica/consultório: ${form.empresa}`,
-      `WhatsApp: +55 ${form.whatsapp}`,
-      `Cidade/bairro: ${form.cidade}`,
-      `Faturamento mensal: ${form.faturamento}`,
-    ].join("\n");
+    const primeiroNome = form.nome.trim().split(/\s+/)[0];
+    const msg = `Olá! Sou ${primeiroNome}, da ${form.empresa.trim()}, em ${form.cidade.trim()}, e gostaria de agendar uma conversa sobre o marketing da minha clínica.`;
     // Salva o lead na planilha (keepalive: o envio continua mesmo com a aba do WhatsApp abrindo)
     fetch("/api/lead", {
       method: "POST",

@@ -7,7 +7,7 @@ export const site = {
   fullName: "ALVEO Marketing e Vendas",
   tagline: "Marketing especializado em odontologia",
   // WhatsApp em formato internacional, sem símbolos (ex.: 55 + DDD + número)
-  whatsapp: "5599999999999",
+  whatsapp: "5517981664728",
   whatsappMessage:
     "Olá! Vim pelo site da ALVEO e gostaria de agendar uma conversa sobre o marketing da minha clínica.",
   email: "contato@alveo.com.br",
