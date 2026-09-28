@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# segredo da integração com a planilha
+integrations/google-sheets/Code.gs
