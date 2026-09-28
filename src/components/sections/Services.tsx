@@ -67,97 +67,114 @@ const services = [
   },
 ];
 
-/** Carrossel infinito: rola sozinho, pausa no hover e aceita arrastar. */
-function useAutoScroll() {
-  const ref = useRef<HTMLDivElement>(null);
+/**
+ * Carrossel infinito movido por transform (GPU), não por scrollLeft:
+ * no celular o scrollLeft fracionado é arredondado e o carrossel "treme".
+ * Rola sozinho, pausa com o mouse em cima e aceita arrastar (mouse e dedo).
+ */
+function useCarousel() {
+  const viewport = useRef<HTMLDivElement>(null);
+  const track = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
+    const vp = viewport.current;
+    const tr = track.current;
+    if (!vp || !tr) return;
+
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let paused = false;
+    const SPEED = 32; // px por segundo
+    let offset = 0;
+    let hover = false;
     let dragging = false;
+    let moved = false;
     let startX = 0;
-    let startScroll = 0;
-    let pos = el.scrollLeft;
+    let startY = 0;
+    let startOffset = 0;
+    let last = performance.now();
     let raf = 0;
 
-    // metade do conteúdo = uma volta (os cards estão duplicados)
-    const loop = () => el.scrollWidth / 2;
+    // metade do trilho = uma volta (os cards estão duplicados)
     const wrap = () => {
-      const half = loop();
-      if (el.scrollLeft >= half) el.scrollLeft -= half;
-      else if (el.scrollLeft <= 0) el.scrollLeft += half;
+      const half = tr.scrollWidth / 2;
+      if (!half) return;
+      offset = ((offset % half) - half) % half; // mantém em (-half, 0]
+    };
+    const paint = () => {
+      tr.style.transform = `translate3d(${offset}px,0,0)`;
     };
 
-    const tick = () => {
-      if (!paused && !dragging && !reduce) {
-        pos += 0.5;
-        el.scrollLeft = pos;
+    const tick = (now: number) => {
+      const dt = Math.min(now - last, 64) / 1000;
+      last = now;
+      if (!reduce && !hover && !dragging) {
+        offset -= SPEED * dt;
         wrap();
-        pos = el.scrollLeft;
+        paint();
       }
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
 
-    const enter = () => (paused = true);
-    const leave = () => {
-      paused = false;
-      pos = el.scrollLeft;
-    };
     const down = (e: PointerEvent) => {
-      if (e.pointerType !== "mouse") return; // toque usa o scroll nativo
       dragging = true;
+      moved = false;
       startX = e.clientX;
-      startScroll = el.scrollLeft;
-      el.classList.add("dragging");
-      el.setPointerCapture(e.pointerId);
+      startY = e.clientY;
+      startOffset = offset;
     };
     const move = (e: PointerEvent) => {
       if (!dragging) return;
-      el.scrollLeft = startScroll - (e.clientX - startX);
-      wrap();
+      const dx = e.clientX - startX;
+      // no toque, gesto mais vertical que horizontal é rolagem da página
+      if (!moved && e.pointerType !== "mouse" && Math.abs(e.clientY - startY) > Math.abs(dx)) {
+        dragging = false;
+        return;
+      }
+      if (Math.abs(dx) > 3 && !moved) {
+        moved = true;
+        vp.setPointerCapture(e.pointerId);
+        vp.classList.add("dragging");
+      }
+      if (moved) {
+        offset = startOffset + dx;
+        wrap();
+        paint();
+      }
     };
     const up = () => {
       dragging = false;
-      pos = el.scrollLeft;
-      el.classList.remove("dragging");
+      vp.classList.remove("dragging");
     };
-    const touchEnd = () => (pos = el.scrollLeft);
-    const onScroll = () => {
-      if (!dragging && paused) wrap();
+    const enter = (e: PointerEvent) => {
+      if (e.pointerType === "mouse") hover = true;
+    };
+    const leave = (e: PointerEvent) => {
+      if (e.pointerType === "mouse") hover = false;
     };
 
-    el.addEventListener("mouseenter", enter);
-    el.addEventListener("mouseleave", leave);
-    el.addEventListener("pointerdown", down);
-    el.addEventListener("pointermove", move);
-    el.addEventListener("pointerup", up);
-    el.addEventListener("pointercancel", up);
-    el.addEventListener("touchstart", enter, { passive: true });
-    el.addEventListener("touchend", touchEnd, { passive: true });
-    el.addEventListener("scroll", onScroll, { passive: true });
+    vp.addEventListener("pointerdown", down);
+    vp.addEventListener("pointermove", move);
+    vp.addEventListener("pointerup", up);
+    vp.addEventListener("pointercancel", up);
+    vp.addEventListener("pointerenter", enter);
+    vp.addEventListener("pointerleave", leave);
 
     return () => {
       cancelAnimationFrame(raf);
-      el.removeEventListener("mouseenter", enter);
-      el.removeEventListener("mouseleave", leave);
-      el.removeEventListener("pointerdown", down);
-      el.removeEventListener("pointermove", move);
-      el.removeEventListener("pointerup", up);
-      el.removeEventListener("pointercancel", up);
-      el.removeEventListener("touchstart", enter);
-      el.removeEventListener("touchend", touchEnd);
-      el.removeEventListener("scroll", onScroll);
+      vp.removeEventListener("pointerdown", down);
+      vp.removeEventListener("pointermove", move);
+      vp.removeEventListener("pointerup", up);
+      vp.removeEventListener("pointercancel", up);
+      vp.removeEventListener("pointerenter", enter);
+      vp.removeEventListener("pointerleave", leave);
     };
   }, []);
 
-  return ref;
+  return { viewport, track };
 }
 
 export function Services() {
-  const ref = useAutoScroll();
+  const { viewport, track } = useCarousel();
 
   return (
     <section id="servicos" className="section bg-white text-center">
@@ -171,8 +188,8 @@ export function Services() {
         </p>
       </div>
 
-      <div ref={ref} className="svc-marquee mb-14 select-none">
-        <div className="flex w-max gap-5 px-3 py-4">
+      <div ref={viewport} className="svc-marquee mb-14 select-none">
+        <div ref={track} className="flex w-max gap-5 px-3 py-4 will-change-transform">
           {[...services, ...services].map((s, i) => (
             <article
               key={i}

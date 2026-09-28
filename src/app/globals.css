@@ -325,10 +325,10 @@
 
   /* ===== Carrossel de serviços ===== */
   .svc-marquee {
-    overflow-x: auto;
-    overflow-y: hidden;
+    overflow: hidden;
     padding: 10px 0;
-    scrollbar-width: none;
+    /* deixa a página rolar na vertical; o arraste horizontal é tratado no JS */
+    touch-action: pan-y;
     -webkit-mask-image: linear-gradient(
       90deg,
       transparent,
@@ -338,9 +338,6 @@
     );
     mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
     cursor: grab;
-  }
-  .svc-marquee::-webkit-scrollbar {
-    display: none;
   }
   .svc-marquee.dragging {
     cursor: grabbing;
