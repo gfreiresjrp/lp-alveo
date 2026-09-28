@@ -1,12 +1,12 @@
 import { LogoWordmark } from "../Logo";
 import { HeroForm } from "./HeroForm";
-import { IconCheck } from "../Icons";
+import { IconHandshake, IconTarget, IconWhatsApp } from "../Icons";
 import { FORM_ID, brl, offer } from "@/lib/site";
 
 const points = [
-  "Campanhas focadas nos tratamentos de maior valor",
-  "Captação direto no WhatsApp da clínica",
-  "Treinamento da recepção para converter avaliações",
+  { icon: IconTarget, text: "Campanhas nos tratamentos de maior valor" },
+  { icon: IconWhatsApp, text: "Pacientes chegando direto no WhatsApp" },
+  { icon: IconHandshake, text: "Recepção treinada para fechar avaliações" },
 ];
 
 export function Hero() {
@@ -43,16 +43,14 @@ export function Hero() {
               tratamento fechado, para que você foque no atendimento.
             </p>
 
-            <ul className="mx-auto mt-9 flex max-w-[320px] flex-col gap-5 sm:max-w-none lg:mx-0 lg:mt-8 lg:w-fit lg:gap-3.5">
-              {points.map((p) => (
-                <li
-                  key={p}
-                  className="flex flex-col items-center gap-2 text-center text-[0.95rem] font-medium text-ink lg:flex-row lg:gap-3 lg:text-left"
-                >
-                  <span className="flex h-6 w-6 flex-none items-center justify-center rounded-full bg-navy text-lime">
-                    <IconCheck className="h-3.5 w-3.5" strokeWidth={2.5} />
+            {/* celular: card com linhas; desktop: lista simples */}
+            <ul className="mx-auto mt-9 max-w-[380px] divide-y divide-navy-100 overflow-hidden rounded-2xl border border-navy-100 bg-white/90 text-left shadow-[0_12px_30px_-18px_rgba(11,29,58,0.35)] backdrop-blur lg:mx-0 lg:mt-8 lg:max-w-none lg:divide-y-0 lg:overflow-visible lg:rounded-none lg:border-0 lg:bg-transparent lg:shadow-none lg:backdrop-blur-none">
+              {points.map(({ icon: Icon, text }) => (
+                <li key={text} className="flex items-center gap-3.5 px-4 py-3.5 text-[0.93rem] font-medium leading-snug text-ink lg:px-0 lg:py-1.5">
+                  <span className="flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-navy text-lime lg:h-7 lg:w-7 lg:rounded-full">
+                    <Icon className="h-[18px] w-[18px] lg:h-4 lg:w-4" />
                   </span>
-                  {p}
+                  {text}
                 </li>
               ))}
             </ul>
