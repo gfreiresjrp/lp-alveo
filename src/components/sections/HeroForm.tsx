@@ -67,6 +67,12 @@ export function HeroForm() {
     if (!phoneOk) return;
     const primeiroNome = form.nome.trim().split(/\s+/)[0];
     const msg = `Olá! Sou ${primeiroNome}, da ${form.empresa.trim()}, em ${form.cidade.trim()}, e gostaria de agendar uma conversa sobre o marketing da minha clínica.`;
+    // Mesmo ID no pixel (navegador) e na API de Conversões (servidor) = lead contado uma vez só
+    const eventId = crypto.randomUUID();
+    const cookie = (name: string) => document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`))?.[1];
+    const fbclid = tracking.current.fbclid;
+    const fbc = cookie("_fbc") ?? (fbclid ? `fb.1.${Date.now()}.${fbclid}` : undefined);
+
     // Salva o lead na planilha (keepalive: o envio continua mesmo com a aba do WhatsApp abrindo)
     fetch("/api/lead", {
       method: "POST",
@@ -81,10 +87,13 @@ export function HeroForm() {
         ...tracking.current,
         pagina: window.location.href,
         website: honeypot,
+        event_id: eventId,
+        fbp: cookie("_fbp"),
+        fbc,
       }),
     }).catch(() => {});
     // Conversão no Facebook Ads
-    trackPixel("Lead", { content_name: "Formulário LP ALVEO", content_category: form.faturamento });
+    trackPixel("Lead", { content_name: "Formulário LP ALVEO", content_category: form.faturamento }, eventId);
     setSent(true);
     window.open(whatsappUrl(msg), "_blank", "noopener,noreferrer");
   };
