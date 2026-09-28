@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { IconShield } from "../Icons";
+import { trackPixel } from "../MetaPixel";
 import { FORM_ID, whatsappUrl } from "@/lib/site";
 
 const faturamento = [
@@ -82,6 +83,8 @@ export function HeroForm() {
         website: honeypot,
       }),
     }).catch(() => {});
+    // Conversão no Facebook Ads
+    trackPixel("Lead", { content_name: "Formulário LP ALVEO", content_category: form.faturamento });
     setSent(true);
     window.open(whatsappUrl(msg), "_blank", "noopener,noreferrer");
   };

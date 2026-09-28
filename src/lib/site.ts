@@ -41,6 +41,9 @@ export const nav = [
   { label: "Dúvidas", href: "#faq" },
 ] as const;
 
+/** ID do Meta Pixel (Facebook Ads). */
+export const META_PIXEL_ID = "920322627533112";
+
 /** Âncora do formulário (todos os CTAs da página levam pra cá). */
 export const FORM_ID = "diagnostico";
 

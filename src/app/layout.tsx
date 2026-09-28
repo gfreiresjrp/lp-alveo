@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Poppins, Montserrat } from "next/font/google";
 import "./globals.css";
+import { MetaPixel } from "@/components/MetaPixel";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -69,6 +70,7 @@ export default function RootLayout({
     >
       <body className="min-h-dvh flex flex-col overflow-x-hidden">
         {children}
+        <MetaPixel />
       </body>
     </html>
   );
