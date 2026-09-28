@@ -43,9 +43,12 @@ export function Hero() {
               tratamento fechado, para que você foque no atendimento.
             </p>
 
-            <ul className="mx-auto mt-8 flex w-fit flex-col gap-3.5 text-left lg:mx-0">
+            <ul className="mx-auto mt-9 flex max-w-[320px] flex-col gap-5 sm:max-w-none lg:mx-0 lg:mt-8 lg:w-fit lg:gap-3.5">
               {points.map((p) => (
-                <li key={p} className="flex items-center gap-3 text-[0.95rem] font-medium text-ink">
+                <li
+                  key={p}
+                  className="flex flex-col items-center gap-2 text-center text-[0.95rem] font-medium text-ink lg:flex-row lg:gap-3 lg:text-left"
+                >
                   <span className="flex h-6 w-6 flex-none items-center justify-center rounded-full bg-navy text-lime">
                     <IconCheck className="h-3.5 w-3.5" strokeWidth={2.5} />
                   </span>
